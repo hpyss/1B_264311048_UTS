@@ -1,9 +1,10 @@
 # 🗄️ UTS Basis Data — 1B_264311048
 
-> **Mata Kuliah:** Basis Data  
+> **Nama:** Muhammad Amirul Hafidz
+> **Mata Kuliah:** Praktik Basis Data  
 > **NIM:** 264311048  
 > **Kelas:** 1B  
-> **Kode MK:** SCPMK0720801 / 0720802 / 0720803
+> **Prodi:** TRPL
 
 ---
 
