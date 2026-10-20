@@ -1,4 +1,4 @@
-# 🗄️ UTS Basis Data — 1B_264311048
+# 🗄️ UTS Praktik Basis Data — 1B_264311048
 
 > **Nama:** Muhammad Amirul Hafidz
 > **Mata Kuliah:** Praktik Basis Data  
