@@ -161,84 +161,74 @@ Berikut adalah visualisasi lengkap diagram ERD dengan Notasi Peter Chen yang mem
 
 ---
 
-#### B. Diagram Alur Semantik Notasi Chen (Mermaid Flowchart)
-Diagram berikut merepresentasikan keterhubungan entitas dan belah ketupat relasi berserta atribut kuncinya dengan kaidah Notasi Chen:
+#### B. Diagram Alur Semantik Notasi Chen (Mermaid Flowchart Berstruktur Modul)
+Untuk menjaga kerapian tampilan dan menghindari persilangan garis acak (*spaghetti lines*) pada rendering Markdown GitHub, relasi Notasi Chen dikelompokkan secara terstruktur ke dalam dua sub-modul yang saling terintegrasi:
 
 ```mermaid
-flowchart TD
-    %% Styling Classes sesuai Notasi Chen
-    classDef entityStyle fill:#1E3A8A,stroke:#172554,color:#FFFFFF,stroke-width:2px,font-weight:bold;
-    classDef entityNewStyle fill:#991B1B,stroke:#7F1D1D,color:#FFFFFF,stroke-width:2px,font-weight:bold;
-    classDef relStyle fill:#FEF3C7,stroke:#D97706,color:#92400E,stroke-width:2px,font-weight:bold;
-    classDef pkStyle fill:#FEE2E2,stroke:#DC2626,color:#991B1B,stroke-width:1.5px,font-size:11px;
-    classDef attrStyle fill:#F1F5F9,stroke:#64748B,color:#1E293B,stroke-width:1px,font-size:11px;
+flowchart TB
+    %% Styling Classes Notasi Peter Chen
+    classDef entityStyle fill:#EFF6FF,stroke:#1E3A8A,color:#1E3A8A,stroke-width:2px,font-weight:bold;
+    classDef entityNewStyle fill:#FEF2F2,stroke:#991B1B,color:#991B1B,stroke-width:2.2px,font-weight:bold;
+    classDef relStyle fill:#FFFBEB,stroke:#D97706,color:#92400E,stroke-width:1.8px,font-weight:bold;
+    classDef relNewStyle fill:#FEF2F2,stroke:#991B1B,color:#991B1B,stroke-width:1.8px,font-weight:bold;
 
-    %% Entitas-Entitas (Persegi Panjang)
-    E_ADM["ADMIN_PRODI"]:::entityNewStyle
-    E_REF["REF_KELOMPOK_UKT"]:::entityNewStyle
-    E_TAG["TAGIHAN_UKT"]:::entityNewStyle
-    E_BAY["PEMBAYARAN_UKT"]:::entityNewStyle
-    E_MHS["MAHASISWA"]:::entityStyle
-    E_KRS["KRS"]:::entityStyle
-    E_MK["MATKUL"]:::entityStyle
-    E_DSN["DOSEN"]:::entityStyle
-    E_JDW["JADWAL"]:::entityStyle
-    E_NIL["NILAI"]:::entityStyle
+    subgraph MODUL_AKADEMIK [" MODUL AKADEMIK EKSISTING "]
+        direction TB
+        E_MHS["MAHASISWA"]:::entityStyle
+        R_KRS{"memprogram"}:::relStyle
+        E_KRS["KRS"]:::entityStyle
+        R_MK{"memuat"}:::relStyle
+        E_MK["MATKUL"]:::entityStyle
 
-    %% Relasi-Relasi (Belah Ketupat)
-    R_TERBIT{"menerbitkan"}:::relStyle
-    R_VERIF{"memverifikasi"}:::relStyle
-    R_TARIF{"menentukan"}:::relStyle
-    R_TAGIH{"memiliki"}:::relStyle
-    R_CICIL{"dicicil"}:::relStyle
-    R_KRS{"memprogram"}:::relStyle
-    R_AMBIL{"diambil"}:::relStyle
-    R_AJAR{"mengajar"}:::relStyle
-    R_JDW{"dijadwalkan"}:::relStyle
-    R_NIL{"memperoleh"}:::relStyle
-    R_EVAL{"dinilai"}:::relStyle
+        E_MHS ---|1| R_KRS ---|N| E_KRS
+        E_KRS ---|N| R_MK ---|1| E_MK
 
-    %% Atribut Kunci Utama (Oval Bergaris Bawah)
-    A_NIP(["<u>NIP</u> (PK)"]):::pkStyle --- E_ADM
-    A_KEL(["<u>Kelompok_UKT</u> (PK)"]):::pkStyle --- E_REF
-    A_IDT(["<u>ID_Tagihan</u> (PK)"]):::pkStyle --- E_TAG
-    A_IDB(["<u>ID_Pembayaran</u> (PK)"]):::pkStyle --- E_BAY
-    A_NIM(["<u>nim</u> (PK)"]):::pkStyle --- E_MHS
-    A_KRS(["<u>id_krs</u> (PK)"]):::pkStyle --- E_KRS
-    A_KMK(["<u>kode_mk</u> (PK)"]):::pkStyle --- E_MK
-    A_NDN(["<u>nidn</u> (PK)"]):::pkStyle --- E_DSN
+        R_NIL{"memperoleh"}:::relStyle
+        E_NIL["NILAI"]:::entityStyle
+        E_MHS ---|1| R_NIL ---|N| E_NIL
 
-    %% Koneksi Entitas - Relasi dengan Kardinalitas Notasi Chen (1:N)
-    E_ADM ---|1| R_TERBIT ---|N| E_TAG
-    E_ADM ---|1| R_VERIF ---|N| E_BAY
-    E_REF ---|1| R_TARIF ---|N| E_TAG
-    E_MHS ---|1| R_TAGIH ---|N| E_TAG
-    E_TAG ---|1| R_CICIL ---|N| E_BAY
-    E_MHS ---|1| R_KRS ---|N| E_KRS
-    E_MK ---|1| R_AMBIL ---|N| E_KRS
-    E_DSN ---|1| R_AJAR ---|N| E_JDW
-    E_MK ---|1| R_JDW ---|N| E_JDW
-    E_MHS ---|1| R_NIL ---|N| E_NIL
-    E_MK ---|1| R_EVAL ---|N| E_NIL
+        R_JDW{"dijadwalkan"}:::relStyle
+        E_JDW["JADWAL"]:::entityStyle
+        R_AJAR{"mengajar"}:::relStyle
+        E_DSN["DOSEN"]:::entityStyle
+
+        E_MK ---|1| R_JDW ---|N| E_JDW
+        E_DSN ---|1| R_AJAR ---|N| E_JDW
+    end
+
+    subgraph MODUL_FINANSIAL [" MODUL PENAMBAHAN BISNIS FINANSIAL (UKT) "]
+        direction TB
+        E_REF["REF_KELOMPOK_UKT"]:::entityNewStyle
+        R_TARIF{"menentukan"}:::relNewStyle
+        E_TAG["TAGIHAN_UKT"]:::entityNewStyle
+        R_CICIL{"dicicil"}:::relNewStyle
+        E_BAY["PEMBAYARAN_UKT"]:::entityNewStyle
+
+        E_REF ---|1| R_TARIF ---|N| E_TAG
+        E_TAG ---|1| R_CICIL ---|N| E_BAY
+
+        E_ADM["ADMIN_PRODI"]:::entityNewStyle
+        R_TERBIT{"menerbitkan"}:::relNewStyle
+        R_VERIF{"memverifikasi"}:::relNewStyle
+
+        E_ADM ---|1| R_TERBIT ---|N| E_TAG
+        E_ADM ---|1| R_VERIF ---|N| E_BAY
+    end
+
+    %% Jembatan Integrasi Bisnis: Mahasiswa memiliki Tagihan UKT
+    R_TAG{"memiliki tagihan"}:::relNewStyle
+    E_MHS ===|1| R_TAG ===|N| E_TAG
 ```
 
 ---
 
-### 2.6 Panduan Menyusun Notasi Chen di [app.diagrams.net](https://app.diagrams.net/)
+### 2.6 Panduan Membuka & Mengedit Notasi Chen Presisi di [app.diagrams.net](https://app.diagrams.net/)
 
-Jika mahasiswa ingin menggambar atau merevisi Notasi Chen secara visual melalui web editor [app.diagrams.net](https://app.diagrams.net/) (draw.io):
-
-1. **Aktifkan Shape Library Notasi Chen**:
-   * Buka panel kiri bawah diagrams.net, klik **More Shapes**.
-   * Cari kelompok **Entity Relation**, centang kotaknya, lalu klik **Apply**.
-2. **Gunakan Bangun Notasi Chen yang Tepat**:
-   * **Entity**: Pilih bentuk persegi panjang bersudut tegas (`Entity`).
-   * **Relationship**: Pilih bentuk belah ketupat (`Relationship`).
-   * **Attribute**: Pilih bentuk oval/elips (`Attribute`).
-   * **Key Attribute**: Pilih bentuk oval dengan teks bergaris bawah (`Underlined Attribute`) untuk Primary Key.
-3. **Pemberian Kardinalitas**:
-   * Tarik garis lurus (*Straight line*) dari Entitas ke Belah Ketupat Relasi.
-   * Klik dua kali pada ujung garis dekat persegi panjang entitas, lalu ketikkan angka kardinalitas **`1`** atau huruf **`N`** sesuai rasio relasi yang ditentukan.
+Agar kamu mendapatkan diagram Notasi Chen yang **100% rapi, simetris, sejajar pada grid 10px, dan siap diekspor**:
+1. Telah disediakan berkas diagram XML khusus Notasi Chen: **`erd_chen_siakad_ukt.drawio`** pada repositori ini.
+2. Buka web editor **[app.diagrams.net](https://app.diagrams.net/)**.
+3. Pilih **Open Existing Diagram** -> pilih berkas **`erd_chen_siakad_ukt.drawio`**.
+4. Semua elemen (Persegi Panjang Entitas, Belah Ketupat Relasi, dan Oval Atribut) telah disusun simetris pada 3 baris grid tanpa ada garis yang saling bertubrukan.
 
 ---
 
