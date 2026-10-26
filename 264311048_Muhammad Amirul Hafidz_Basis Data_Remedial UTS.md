@@ -63,127 +63,182 @@ Untuk mengatasi tantangan di atas, dilakukan rekayasa ulang dan penambahan alur 
 
 ---
 
-## 2. Pemodelan Konseptual: Entity-Relationship Diagram (ERD)
+## 2. Pemodelan Konseptual: Entity-Relationship Diagram (ERD) Notasi Peter Chen
 
-### 2.1 Identifikasi Entitas & Klasifikasi
+Pemodelan konseptual ini disusun menggunakan **Notasi Peter Chen (1976)**, yang merupakan standar formal pemodelan data semantik konseptual sebelum ditransformasikan ke skema relasional fisik.
 
-| No | Nama Entitas | Jenis | Peran dalam Sistem |
-| :---: | :--- | :--- | :--- |
-| 1 | `mahasiswa` | Eksisting (Master) | Subjek utama yang menempuh studi dan memiliki kewajiban UKT. |
-| 2 | `admin_prodi` | Baru (Master) | Tenaga kependidikan pengelola tagihan dan verifikator keuangan prodi. |
-| 3 | `ref_kelompok_ukt`| Baru (Referensi) | Tabel lookup tarif UKT kelompok 1 s/d 8. |
-| 4 | `tagihan_ukt` | Baru (Transaksi Induk) | Lembar kewajiban bayar mahasiswa per semester. |
-| 5 | `pembayaran_ukt` | Baru (Transaksi Rinci)| Detail transaksi setoran dana dan bukti transfer. |
-| 6 | `matkul` | Eksisting (Master) | Mata kuliah yang ditawarkan di program studi. |
-| 7 | `dosen` | Eksisting (Master) | Pengampu mata kuliah dan pembina akademik. |
-| 8 | `jadwal` | Eksisting (Operasional)| Waktu, hari, dan ruang pelaksanaan mata kuliah. |
-| 9 | `krs` | Eksisting (Transaksi) | Rencana studi semesteran mahasiswa yang terkunci jika UKT belum lunas. |
-| 10 | `nilai` | Eksisting (Evaluasi) | Nilai huruf/angka hasil studi mahasiswa. |
+### 2.1 Kaidah & Simbol Notasi Peter Chen
 
-### 2.2 Relasi Antar-Entitas & Kardinalitas (Crow's Foot)
+Notasi Peter Chen menggunakan simbol-simbol grafis murni sebagai berikut:
+1. **Entitas (Entity)**: Digambarkan dengan bangun **Persegi Panjang** (*Rectangle*), merepresentasikan himpunan objek nyata yang informasi datanya disimpan di dalam sistem.
+2. **Relasi (Relationship)**: Digambarkan dengan bangun **Belah Ketupat / Intan** (*Diamond* / *Rhombus*), merepresentasikan keterhubungan atau aksi antara dua atau lebih entitas. Nama relasi dituliskan menggunakan kata kerja aktif.
+3. **Atribut (Attribute)**: Digambarkan dengan bangun **Elips / Oval** (*Ellipse*) yang terhubung langsung dengan garis ke entitas pemiliknya.
+   * **Atribut Kunci (Primary Key / Key Attribute)**: Oval dengan nama atribut yang **diberi garis bawah** (*underlined*) atau penanda `(PK)`.
+   * **Atribut Deskriptif**: Oval standar berisi properti non-kunci dari entitas.
+4. **Derajat Relasi & Rasio Kardinalitas (Cardinality Ratio)**: Dituliskan berupa rasio numerik **`1`** (*One*) dan **`N` / `M`** (*Many*) pada tepi garis penghubung antara belah ketupat relasi dan persegi panjang entitas.
 
-1. **`mahasiswa` ke `tagihan_ukt` (1 : N)**:
-   * Satu mahasiswa dapat menerima banyak tagihan sepanjang masa studinya (semester 1 sampai 8).
-   * Satu tagihan pasti milik satu mahasiswa tertentu.
-2. **`ref_kelompok_ukt` ke `tagihan_ukt` (1 : N)**:
-   * Satu kelompok tarif UKT dapat diterapkan pada banyak tagihan mahasiswa.
-   * Satu tagihan hanya merujuk pada satu kelompok tarif UKT.
-3. **`admin_prodi` ke `tagihan_ukt` (1 : N)**:
-   * Satu admin prodi dapat menerbitkan banyak tagihan UKT untuk mahasiswa.
-   * Satu lembar tagihan diterbitkan oleh seorang admin prodi penanggung jawab.
-4. **`tagihan_ukt` ke `pembayaran_ukt` (1 : N)**:
-   * Satu tagihan UKT dapat dilunasi melalui beberapa kali setoran pembayaran (cicilan).
-   * Setiap catatan pembayaran wajib terhubung ke satu nomor tagihan yang valid.
-5. **`admin_prodi` ke `pembayaran_ukt` (1 : N)**:
-   * Satu admin prodi dapat memverifikasi banyak transaksi pembayaran dari berbagai mahasiswa.
-   * Satu transaksi diverifikasi oleh satu admin prodi (atau bernilai NULL jika statusnya masih `PENDING`).
-6. **`mahasiswa` ke `krs` (1 : N)**:
-   * Satu mahasiswa dapat mengambil banyak mata kuliah dalam form KRS semester.
-   * Setiap baris KRS merujuk pada satu mahasiswa yang sah dan telah lunas tagihannya.
-7. **`matkul` ke `krs` (1 : N)**:
-   * Satu mata kuliah dapat diambil oleh banyak mahasiswa di berbagai formulir KRS.
-   * Setiap baris KRS merujuk ke satu mata kuliah.
+---
 
-### 2.3 Visualisasi ERD (Sintaks Mermaid Crow's Foot)
+### 2.2 Identifikasi Entitas & Klasifikasi Peran
 
-Diagram berikut merepresentasikan rancangan ERD konseptual yang mencakup tabel master akademik dan modul penambahan finansial UKT:
+| No | Nama Entitas | Bentuk Notasi Chen | Jenis | Peran dalam Sistem |
+| :---: | :--- | :--- | :--- | :--- |
+| 1 | `mahasiswa` | Persegi Panjang | Eksisting (Master) | Subjek utama yang menempuh studi dan memiliki kewajiban UKT. |
+| 2 | `admin_prodi` | Persegi Panjang | Baru (Master) | Tenaga kependidikan pengelola tagihan dan verifikator keuangan prodi. |
+| 3 | `ref_kelompok_ukt`| Persegi Panjang | Baru (Referensi) | Tabel lookup tarif UKT kelompok 1 s/d 8. |
+| 4 | `tagihan_ukt` | Persegi Panjang | Baru (Transaksi Induk) | Lembar kewajiban bayar mahasiswa per semester. |
+| 5 | `pembayaran_ukt` | Persegi Panjang | Baru (Transaksi Rinci)| Detail transaksi setoran dana dan bukti transfer. |
+| 6 | `matkul` | Persegi Panjang | Eksisting (Master) | Mata kuliah yang ditawarkan di program studi. |
+| 7 | `dosen` | Persegi Panjang | Eksisting (Master) | Pengampu mata kuliah dan pembina akademik. |
+| 8 | `jadwal` | Persegi Panjang | Eksisting (Operasional)| Waktu, hari, dan ruang pelaksanaan mata kuliah. |
+| 9 | `krs` | Persegi Panjang | Eksisting (Transaksi) | Rencana studi semesteran mahasiswa yang terkunci jika UKT belum lunas. |
+| 10 | `nilai` | Persegi Panjang | Eksisting (Evaluasi) | Nilai huruf/angka hasil studi mahasiswa. |
+
+---
+
+### 2.3 Identifikasi Entitas & Atribut (Kamus Data Notasi Chen)
+
+Berikut adalah pemetaan entitas dan atribut lengkap dengan penandaan Primary Key (`PK`):
+
+| No | Entitas (Persegi Panjang) | Atribut Kunci (Elips Garis Bawah) | Atribut Deskriptif (Elips Standar) | Keterangan Status |
+| :---: | :--- | :--- | :--- | :--- |
+| 1 | `ADMIN_PRODI` | <u>`NIP`</u> | `Nama_Admin`, `Email`, `No_Telepon` | Entitas Baru (Pengelola) |
+| 2 | `REF_KELOMPOK_UKT` | <u>`Kelompok_UKT`</u> | `Nominal` | Entitas Baru (Lookup Tarif) |
+| 3 | `TAGIHAN_UKT` | <u>`ID_Tagihan`</u> | `Semester`, `Tahun_Akademik`, `Tgl_Jatuh_Tempo`, `Status_Tagihan`, `Tgl_Lunas` | Entitas Baru (Transaksi Induk) |
+| 4 | `PEMBAYARAN_UKT` | <u>`ID_Pembayaran`</u> | `Metode_Bayar`, `Nominal_Bayar`, `Tgl_Bayar`, `Bukti_Bayar`, `Status_Verifikasi`, `Tgl_Verifikasi`, `Keterangan` | Entitas Baru (Transaksi Rinci) |
+| 5 | `MAHASISWA` | <u>`nim`</u> | `nama`, `semester` | Entitas Eksisting |
+| 6 | `KRS` | <u>`id_krs`</u> | `semester`, `tahun_akademik` | Entitas Eksisting (Terkunci jika UKT belum lunas) |
+| 7 | `MATKUL` | <u>`kode_mk`</u> | `nama_mk`, `sks` | Entitas Eksisting |
+| 8 | `DOSEN` | <u>`nidn`</u> | `nama_dosen` | Entitas Eksisting |
+| 9 | `JADWAL` | <u>`id_jadwal`</u> | `hari`, `jam`, `ruang` | Entitas Eksisting |
+| 10 | `NILAI` | <u>`id_nilai`</u> | `nilai`, `semester` | Entitas Eksisting |
+
+---
+
+### 2.4 Pemetaan Relasi & Rasio Kardinalitas (Notasi Chen)
+
+Pada notasi Chen, Foreign Key tidak digambarkan sebagai atribut mandiri di dalam entitas anak, melainkan direpresentasikan secara semantik melalui belah ketupat relasi (*relationship set*):
+
+```text
+[ADMIN_PRODI]       --- (1) --- <menerbitkan>   --- (N) --- [TAGIHAN_UKT]
+[ADMIN_PRODI]       --- (1) --- <memverifikasi> --- (N) --- [PEMBAYARAN_UKT]
+[REF_KELOMPOK_UKT]  --- (1) --- <menentukan>    --- (N) --- [TAGIHAN_UKT]
+[MAHASISWA]         --- (1) --- <memiliki>      --- (N) --- [TAGIHAN_UKT]
+[TAGIHAN_UKT]       --- (1) --- <dicicil>       --- (N) --- [PEMBAYARAN_UKT]
+[MAHASISWA]         --- (1) --- <memprogram>    --- (N) --- [KRS]
+[MATKUL]            --- (1) --- <diambil>       --- (N) --- [KRS]
+[MATKUL]            --- (1) --- <dijadwalkan>   --- (N) --- [JADWAL]
+[DOSEN]             --- (1) --- <mengajar>      --- (N) --- [JADWAL]
+[MAHASISWA]         --- (1) --- <memperoleh>    --- (N) --- [NILAI]
+[MATKUL]            --- (1) --- <dinilai>       --- (N) --- [NILAI]
+```
+
+*Penjelasan Aturan Kardinalitas*:
+1. **`ADMIN_PRODI` --- (1) --- `<menerbitkan>` --- (N) --- `TAGIHAN_UKT`**:
+   Satu orang Admin Program Studi dapat menerbitkan banyak tagihan UKT ($1:N$). Setiap tagihan diterbitkan oleh tepat satu admin penanggung jawab.
+2. **`ADMIN_PRODI` --- (1) --- `<memverifikasi>` --- (N) --- `PEMBAYARAN_UKT`**:
+   Satu Admin Prodi memverifikasi banyak catatan transaksi pembayaran cicilan ($1:N$).
+3. **`REF_KELOMPOK_UKT` --- (1) --- `<menentukan>` --- (N) --- `TAGIHAN_UKT`**:
+   Satu golongan tarif kelompok UKT (1 s/d 8) menentukan nominal pada banyak tagihan mahasiswa ($1:N$).
+4. **`MAHASISWA` --- (1) --- `<memiliki>` --- (N) --- `TAGIHAN_UKT`**:
+   Satu mahasiswa memiliki riwayat kewajiban tagihan per semester ($1:N$). Setiap lembar tagihan hanya milik satu mahasiswa.
+5. **`TAGIHAN_UKT` --- (1) --- `<dicicil>` --- (N) --- `PEMBAYARAN_UKT`**:
+   Satu tagihan UKT dapat dilunasi melalui satu atau beberapa transaksi pembayaran ($1:N$).
+6. **`MAHASISWA` --- (1) --- `<memprogram>` --- (N) --- `KRS`**:
+   Mahasiswa yang status tagihannya telah `LUNAS` berhak memprogram banyak mata kuliah dalam form KRS semester ($1:N$).
+7. **`MATKUL` --- (1) --- `<diambil>` --- (N) --- `KRS`**:
+   Satu mata kuliah dapat diambil oleh banyak mahasiswa dalam KRS ($1:N$).
+
+---
+
+### 2.5 Diagram Visual Notasi Peter Chen
+
+#### A. Gambar Diagram Notasi Chen (Grafis Penuh)
+Berikut adalah visualisasi lengkap diagram ERD dengan Notasi Peter Chen yang membedakan entitas eksisting akademik dan entitas baru modul penambahan UKT:
+
+![Diagram ERD Notasi Peter Chen](assets/img/erd_ukt_chen.png)
+*Gambar 2.1: Diagram Konseptual ERD Sistem Akademik & Pembayaran UKT menggunakan Notasi Peter Chen (Entitas = Persegi Panjang, Relasi = Belah Ketupat, Atribut = Oval, Underline = Primary Key).*
+
+---
+
+#### B. Diagram Alur Semantik Notasi Chen (Mermaid Flowchart)
+Diagram berikut merepresentasikan keterhubungan entitas dan belah ketupat relasi berserta atribut kuncinya dengan kaidah Notasi Chen:
 
 ```mermaid
-erDiagram
-    ADMIN_PRODI ||--o{ TAGIHAN_UKT : "menerbitkan (1:N)"
-    ADMIN_PRODI ||--o{ PEMBAYARAN_UKT : "memverifikasi (1:N)"
-    REF_KELOMPOK_UKT ||--o{ TAGIHAN_UKT : "menentukan nominal (1:N)"
-    MAHASISWA ||--o{ TAGIHAN_UKT : "memiliki kewajiban (1:N)"
-    TAGIHAN_UKT ||--o{ PEMBAYARAN_UKT : "dicicil melalui (1:N)"
-    MAHASISWA ||--o{ KRS : "memprogram (jika LUNAS) (1:N)"
-    MATKUL ||--o{ KRS : "diambil dalam (1:N)"
-    MATKUL ||--o{ JADWAL : "dijadwalkan (1:N)"
-    DOSEN ||--o{ JADWAL : "mengajar (1:N)"
-    MAHASISWA ||--o{ NILAI : "memperoleh (1:N)"
-    MATKUL ||--o{ NILAI : "dinilai pada (1:N)"
+flowchart TD
+    %% Styling Classes sesuai Notasi Chen
+    classDef entityStyle fill:#1E3A8A,stroke:#172554,color:#FFFFFF,stroke-width:2px,font-weight:bold;
+    classDef entityNewStyle fill:#991B1B,stroke:#7F1D1D,color:#FFFFFF,stroke-width:2px,font-weight:bold;
+    classDef relStyle fill:#FEF3C7,stroke:#D97706,color:#92400E,stroke-width:2px,font-weight:bold;
+    classDef pkStyle fill:#FEE2E2,stroke:#DC2626,color:#991B1B,stroke-width:1.5px,font-size:11px;
+    classDef attrStyle fill:#F1F5F9,stroke:#64748B,color:#1E293B,stroke-width:1px,font-size:11px;
 
-    MAHASISWA {
-        varchar nim PK "Nomor Induk Mahasiswa"
-        varchar nama "Nama Lengkap"
-        int semester "Semester Aktif"
-    }
+    %% Entitas-Entitas (Persegi Panjang)
+    E_ADM["ADMIN_PRODI"]:::entityNewStyle
+    E_REF["REF_KELOMPOK_UKT"]:::entityNewStyle
+    E_TAG["TAGIHAN_UKT"]:::entityNewStyle
+    E_BAY["PEMBAYARAN_UKT"]:::entityNewStyle
+    E_MHS["MAHASISWA"]:::entityStyle
+    E_KRS["KRS"]:::entityStyle
+    E_MK["MATKUL"]:::entityStyle
+    E_DSN["DOSEN"]:::entityStyle
+    E_JDW["JADWAL"]:::entityStyle
+    E_NIL["NILAI"]:::entityStyle
 
-    ADMIN_PRODI {
-        varchar NIP PK "Nomor Induk Pegawai"
-        varchar Nama_Admin "Nama Staf Prodi"
-        varchar Email "Email Resmi"
-        varchar No_Telepon "Kontak WA/Telp"
-    }
+    %% Relasi-Relasi (Belah Ketupat)
+    R_TERBIT{"menerbitkan"}:::relStyle
+    R_VERIF{"memverifikasi"}:::relStyle
+    R_TARIF{"menentukan"}:::relStyle
+    R_TAGIH{"memiliki"}:::relStyle
+    R_CICIL{"dicicil"}:::relStyle
+    R_KRS{"memprogram"}:::relStyle
+    R_AMBIL{"diambil"}:::relStyle
+    R_AJAR{"mengajar"}:::relStyle
+    R_JDW{"dijadwalkan"}:::relStyle
+    R_NIL{"memperoleh"}:::relStyle
+    R_EVAL{"dinilai"}:::relStyle
 
-    REF_KELOMPOK_UKT {
-        int Kelompok_UKT PK "Golongan UKT 1-8"
-        decimal Nominal "Besaran Tarif Rupiah"
-    }
+    %% Atribut Kunci Utama (Oval Bergaris Bawah)
+    A_NIP(["<u>NIP</u> (PK)"]):::pkStyle --- E_ADM
+    A_KEL(["<u>Kelompok_UKT</u> (PK)"]):::pkStyle --- E_REF
+    A_IDT(["<u>ID_Tagihan</u> (PK)"]):::pkStyle --- E_TAG
+    A_IDB(["<u>ID_Pembayaran</u> (PK)"]):::pkStyle --- E_BAY
+    A_NIM(["<u>nim</u> (PK)"]):::pkStyle --- E_MHS
+    A_KRS(["<u>id_krs</u> (PK)"]):::pkStyle --- E_KRS
+    A_KMK(["<u>kode_mk</u> (PK)"]):::pkStyle --- E_MK
+    A_NDN(["<u>nidn</u> (PK)"]):::pkStyle --- E_DSN
 
-    TAGIHAN_UKT {
-        varchar ID_Tagihan PK "Kode Unik Tagihan"
-        varchar NIM FK "Relasi ke Mahasiswa"
-        int Semester "Semester Tagihan"
-        varchar Tahun_Akademik "Format YYYY/YYYY"
-        int Kelompok_UKT FK "Golongan UKT"
-        date Tgl_Jatuh_Tempo "Batas Waktu Bayar"
-        varchar Status_Tagihan "BELUM BAYAR | CICILAN | LUNAS"
-        date Tgl_Lunas "Waktu Pelunasan"
-        varchar NIP_Penerbit FK "Admin Penerbit"
-    }
-
-    PEMBAYARAN_UKT {
-        varchar ID_Pembayaran PK "Kode Unik Pembayaran"
-        varchar ID_Tagihan FK "Relasi Tagihan"
-        varchar Metode_Bayar "TRANSFER | VA_BANK | QRIS | TUNAI"
-        decimal Nominal_Bayar "Jumlah Setoran"
-        date Tgl_Bayar "Tanggal Transaksi"
-        varchar Bukti_Bayar "URL/Path Bukti Foto"
-        varchar Status_Verifikasi "PENDING | TERVERIFIKASI | DITOLAK"
-        date Tgl_Verifikasi "Tanggal Verifikasi"
-        varchar NIP_Verifikator FK "Admin Verifikator"
-        varchar Keterangan "Catatan Verifikasi"
-    }
-
-    KRS {
-        varchar id_krs PK "Kode Rencana Studi"
-        varchar nim FK "Mahasiswa Pengambil"
-        varchar kode_mk FK "Mata Kuliah"
-        varchar semester "Semester Berjalan"
-        varchar tahun_akademik "Tahun Ajaran"
-    }
-
-    MATKUL {
-        varchar kode_mk PK "Kode Mata Kuliah"
-        varchar nama_mk "Nama Mata Kuliah"
-        int sks "Bobot SKS"
-    }
-
-    DOSEN {
-        int nidn PK "Nomor Induk Dosen"
-        varchar nama_dosen "Nama Lengkap Dosen"
-    }
+    %% Koneksi Entitas - Relasi dengan Kardinalitas Notasi Chen (1:N)
+    E_ADM ---|1| R_TERBIT ---|N| E_TAG
+    E_ADM ---|1| R_VERIF ---|N| E_BAY
+    E_REF ---|1| R_TARIF ---|N| E_TAG
+    E_MHS ---|1| R_TAGIH ---|N| E_TAG
+    E_TAG ---|1| R_CICIL ---|N| E_BAY
+    E_MHS ---|1| R_KRS ---|N| E_KRS
+    E_MK ---|1| R_AMBIL ---|N| E_KRS
+    E_DSN ---|1| R_AJAR ---|N| E_JDW
+    E_MK ---|1| R_JDW ---|N| E_JDW
+    E_MHS ---|1| R_NIL ---|N| E_NIL
+    E_MK ---|1| R_EVAL ---|N| E_NIL
 ```
+
+---
+
+### 2.6 Panduan Menyusun Notasi Chen di [app.diagrams.net](https://app.diagrams.net/)
+
+Jika mahasiswa ingin menggambar atau merevisi Notasi Chen secara visual melalui web editor [app.diagrams.net](https://app.diagrams.net/) (draw.io):
+
+1. **Aktifkan Shape Library Notasi Chen**:
+   * Buka panel kiri bawah diagrams.net, klik **More Shapes**.
+   * Cari kelompok **Entity Relation**, centang kotaknya, lalu klik **Apply**.
+2. **Gunakan Bangun Notasi Chen yang Tepat**:
+   * **Entity**: Pilih bentuk persegi panjang bersudut tegas (`Entity`).
+   * **Relationship**: Pilih bentuk belah ketupat (`Relationship`).
+   * **Attribute**: Pilih bentuk oval/elips (`Attribute`).
+   * **Key Attribute**: Pilih bentuk oval dengan teks bergaris bawah (`Underlined Attribute`) untuk Primary Key.
+3. **Pemberian Kardinalitas**:
+   * Tarik garis lurus (*Straight line*) dari Entitas ke Belah Ketupat Relasi.
+   * Klik dua kali pada ujung garis dekat persegi panjang entitas, lalu ketikkan angka kardinalitas **`1`** atau huruf **`N`** sesuai rasio relasi yang ditentukan.
 
 ---
 
@@ -549,7 +604,7 @@ Berdasarkan data sampel yang tersimpan di database `kuliah`:
 1. **Penyelesaian Masalah Nyata**:
    Tantangan bisnis berupa ketiadaan kontrol keuangan berhasil dipecahkan dengan mengintegrasikan modul pembayaran UKT langsung ke gerbang pengisian KRS.
 2. **Kesesuaian 3 Tahapan Pemodelan**:
-   * **Konseptual**: Memetakan interaksi multi-aktor (Mahasiswa dan Admin Prodi) serta entitas transaksi dan referensi dalam ERD Crow's Foot.
+   * **Konseptual**: Memetakan interaksi multi-aktor (Mahasiswa dan Admin Prodi) serta entitas transaksi dan referensi dalam ERD Notasi Peter Chen (Entitas, Relasi Belah Ketupat, dan Atribut Oval).
    * **Logis**: Menerapkan dekomposisi tabel dari UNF hingga 3NF, menghapus perulangan dan ketergantungan transitif tarif UKT.
    * **Fisik**: Mengimplementasikan script DDL di MySQL 8.4 dengan proteksi integritas tinggi melalui constraints, indexing, dan foreign key berjenjang.
 3. **Kesiapan Integrasi ke diagrams.net**:
