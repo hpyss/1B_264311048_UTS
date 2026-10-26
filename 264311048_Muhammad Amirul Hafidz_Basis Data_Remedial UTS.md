@@ -9,10 +9,9 @@
 * **Kelas** : TRPL 1B
 * **Program Studi** : D4 Teknologi Rekayasa Perangkat Lunak
 * **Jurusan** : Teknik, Politeknik Negeri Madiun (PNM)
-* **Mata Kuliah** : Praktik Basis Data
+* **Mata Kuliah** : Basis Data
 * **Semester** : 2026 Ganjil
-* **Lokasi Database** : `localhost/phpmyadmin` (Database: `kuliah`)
-* **Format Penugasan** : Markdown Dokumentasi Komprehensif (.md)
+
 
 ---
 
